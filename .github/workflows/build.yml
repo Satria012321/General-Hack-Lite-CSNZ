@@ -11,10 +11,6 @@ jobs:
   build:
     runs-on: windows-latest
 
-    strategy:
-      matrix:
-        config: [Release, Debug]
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,16 +19,30 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Configure CMake (Win32)
-        run: |
-          cmake -B build -G "Visual Studio 17 2022" -A Win32 `
-            -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+        run: cmake -B build -S . -G "Visual Studio 17 2022" -A Win32
 
-      - name: Build
-        run: cmake --build build --config ${{ matrix.config }} --parallel
+      - name: Build Release
+        run: cmake --build build --config Release --parallel
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: GHL-${{ matrix.config }}
-          path: build/${{ matrix.config }}/GHL.dll
+          name: GHL-Release
+          path: build/Release/GHL.dll
           if-no-files-found: error
+```
+
+**Tapi sebelum ini jalan, pastikan `CMakeLists.txt` ada di root repo** — sejajar langsung dengan `main.cpp`, `Engine.cpp`, dll. Bukan di dalam subfolder.
+
+Struktur repo yang benar:
+```
+repo/
+├── .github/
+│   └── workflows/
+│       └── build.yml
+├── CMakeLists.txt        ← harus di sini
+├── main.cpp
+├── Engine.cpp
+├── Misc.h
+├── ValveSDK/
+└── ...
