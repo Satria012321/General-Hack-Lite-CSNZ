@@ -1,0 +1,38 @@
+name: Build GHL DLL
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        config: [Release, Debug]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Configure CMake (Win32)
+        run: |
+          cmake -B build -G "Visual Studio 17 2022" -A Win32 `
+            -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+
+      - name: Build
+        run: cmake --build build --config ${{ matrix.config }} --parallel
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GHL-${{ matrix.config }}
+          path: build/${{ matrix.config }}/GHL.dll
+          if-no-files-found: error
