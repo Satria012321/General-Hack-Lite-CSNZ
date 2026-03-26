@@ -18,31 +18,15 @@ jobs:
       - name: Setup MSVC
         uses: microsoft/setup-msbuild@v2
 
-      - name: Configure CMake (Win32)
+      - name: Configure CMake
         run: cmake -B build -S . -G "Visual Studio 17 2022" -A Win32
 
-      - name: Build Release
+      - name: Build
         run: cmake --build build --config Release --parallel
 
-      - name: Upload Artifact
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: GHL-Release
           path: build/Release/GHL.dll
           if-no-files-found: error
-```
-
-**Tapi sebelum ini jalan, pastikan `CMakeLists.txt` ada di root repo** — sejajar langsung dengan `main.cpp`, `Engine.cpp`, dll. Bukan di dalam subfolder.
-
-Struktur repo yang benar:
-```
-repo/
-├── .github/
-│   └── workflows/
-│       └── build.yml
-├── CMakeLists.txt        ← harus di sini
-├── main.cpp
-├── Engine.cpp
-├── Misc.h
-├── ValveSDK/
-└── ...
